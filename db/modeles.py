@@ -173,7 +173,7 @@ class Etape(Horodatage, Base):
     id: Mapped[str] = mapped_column(primary_key=True)  # identifiant de l'acte législatif
     dossier_id: Mapped[str] = mapped_column(ForeignKey("dossier.id"), index=True)
     type: Mapped[str]
-    chambre: Mapped[str]
+    chambre: Mapped[str | None]  # vide pour la CMP et la promulgation, communes aux deux chambres
     date: Mapped[date | None]
 
 
