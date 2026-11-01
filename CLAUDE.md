@@ -71,7 +71,7 @@ docker-compose.yml
 
 - Cadrage terminé et relu (19 documents dans `docs/cadrage/`). Wireframes mobiles validés (11 écrans, décrits dans `10-wireframes.md`). Les maquettes ordinateur sont obsolètes.
 - **Prochaine étape : jalon 1, modèle de données.**
-  - Schéma PostgreSQL et migrations (outil de migration à proposer, par ex. Alembic) pour les tables V1 du dictionnaire : `dossier`, `etape`, `texte`, `seance`, `point_odj`, `intervention`, `groupe`, `depute`, `appartenance`, `scrutin`, `vote`, plus les tables IA et d'exploitation.
+  - Schéma PostgreSQL et migrations Alembic pour les tables V1 du dictionnaire : `dossier`, `etape`, `texte`, `seance`, `point_odj`, `intervention`, `groupe`, `depute`, `appartenance`, `scrutin`, `vote`, plus les tables IA et d'exploitation.
   - `docker-compose.yml` avec PostgreSQL, et l'API et le front en squelette.
   - Premier script de collecte sur l'échantillon Syceron.
 - Ensuite : jalon 2 (collecte complète + découpage + liaison), puis jalon 3 (API + recherche). Le détail est dans la section Jalons de `00-cahier-des-charges.md` et dans `15-backlog-priorise.md`.
@@ -83,3 +83,15 @@ docker-compose.yml
 - Expliquer brièvement les choix techniques non évidents : l'auteur doit pouvoir les défendre en entretien.
 - Si une demande contredit le cadrage, le signaler et demander avant de changer une décision.
 - Mettre à jour `docs/cadrage/` (et ce fichier) quand une décision change.
+
+## Workflow Git (décidé le 1er nov. 2026)
+
+```
+feature/xxx ──PR──▶ develop ──PR (fin de jalon)──▶ main
+```
+
+- Les branches de travail partent de `develop` et sont préfixées : `feature/`, `fix/`, `docs/`.
+- **Toute modification passe par une PR** : push direct, force-push et suppression interdits sur `main` et `develop` (rulesets GitHub).
+- **Claude ouvre les PR mais ne les merge jamais** : l'auteur relit et merge lui-même. Aucune approbation n'est exigée par GitHub, car les PR sont ouvertes avec le compte de l'auteur, qui ne peut pas approuver les siennes.
+- Merge en *squash* vers `develop` (un commit par fonctionnalité), en *merge commit* vers `main`.
+- `develop` → `main` à chaque fin de jalon. Quand la CI existera, les tests devront passer avant tout merge.
