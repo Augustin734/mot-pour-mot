@@ -4,10 +4,10 @@
 
 | # | Élément | Domaine | Version | Priorité | Effort | Statut |
 | --- | --- | --- | --- | --- | --- | --- |
-| 1 | Schéma de base et migrations | Tech | V1 | Must | M | À faire |
-| 2 | Collecte open data AN (dossiers, séances, scrutins, députés, groupes) | Données | V1 | Must | L | À faire |
-| 3 | Découpage des comptes rendus en interventions | Données | V1 | Must | L | À faire |
-| 4 | Liaison séances ↔ dossiers législatifs | Données | V1 | Must | M | À faire |
+| 1 | Schéma de base et migrations | Tech | V1 | Must | M | Fait |
+| 2 | Collecte open data AN (dossiers, séances, scrutins, députés, groupes) | Données | V1 | Must | L | Fait |
+| 3 | Découpage des comptes rendus en interventions | Données | V1 | Must | L | Fait |
+| 4 | Liaison séances ↔ dossiers législatifs | Données | V1 | Must | M | Fait |
 | 5 | API : lois, séances, interventions, scrutins | Tech | V1 | Must | M | À faire |
 | 6 | Recherche plein texte (lois et interventions) | Produit | V1 | Must | M | À faire |
 | 7 | Écran Chercher | Produit | V1 | Must | M | À faire |
@@ -24,7 +24,7 @@
 | 18 | Signaler une erreur | Produit | V1 | Should | S | À faire |
 | 19 | Agenda de la semaine (bloc en haut d'Actu) | Produit | V1 | Should | S | À faire |
 | 20 | Design system, mobile d'abord, mode sombre | Design | V1 | Should | M | À faire |
-| 21 | CI et tests | Tech | V1 | Must | S | À faire |
+| 21 | CI et tests | Tech | V1 | Must | S | Fait |
 | 22 | Cloudflare Tunnel et durcissement sécurité | Tech | V1 | Should | S | À faire |
 | 23 | Écran Chiffres complet (cohésion, proximité, amendements, temps de parole) | Produit | V1.1 | Could | L | À faire |
 | 24 | Recherche sémantique | Produit | V1.1 | Could | M | À faire |

@@ -32,9 +32,9 @@ erDiagram
     TEXTE { int legislature PK  text numero PK  text dossier_id FK }
     SEANCE { text id PK  int legislature FK  text type  timestamptz debut  text url_compte_rendu }
     INTERVENTION { bigint id PK  text seance_id FK  int ordre  text depute_id FK  text groupe_id FK  text numero_texte FK  text texte }
-    GROUPE { text id PK  text sigle  text couleur }
+    GROUPE { text id PK  text sigle  text couleur  int ordre_hemicycle }
     DEPUTE { text id PK  text nom  text prenom }
-    APPARTENANCE { text depute_id FK  text groupe_id FK  date debut  date fin }
+    APPARTENANCE { text depute_id FK  text groupe_id FK  text qualite  date debut  date fin }
     SCRUTIN { text id PK  text seance_id FK  text dossier_id FK  text resultat }
     VOTE { text scrutin_id FK  text depute_id FK  text groupe_id FK  text position }
     CITATION { bigint argument_id FK  bigint intervention_id FK  text extrait  bool verifiee }

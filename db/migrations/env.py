@@ -10,7 +10,9 @@ from db.modeles import Base
 
 config = context.config
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    # Sans disable_existing_loggers=False, lancer Alembic depuis Python (les tests) éteint
+    # les journaux du pipeline déjà créés.
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
 
 # Une adresse passée par le code (ex. les tests) est prioritaire sur DATABASE_URL.
 if not config.get_main_option("sqlalchemy.url"):

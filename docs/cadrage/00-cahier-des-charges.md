@@ -69,7 +69,7 @@ Les écrans sont enrichis version par version. L'appli tourne d'abord en local s
 | Indice de confiance par argument | Résultat de la vérification des citations stocké en base |
 | Guides de base « Comprendre l'AN » | Pages rédigées à la main, liens depuis les termes techniques des fiches |
 | Agenda de la semaine | Ordre du jour de l'AN (open data), mis à jour chaque nuit |
-| Mobile d'abord, mode sombre, couleurs traditionnelles des partis | Design system : palette, thèmes clair et sombre |
+| Mobile d'abord, mode sombre, couleurs officielles des groupes (open data AN) | Design system : palette, thèmes clair et sombre |
 | Signaler une erreur | Lien vers une issue GitHub pré-remplie |
 | Page « Méthode » et charte de neutralité | Résultats d'évaluation publiés ; charte réutilisée dans les prompts |
 | CI et tests | pytest (parseurs, API, schéma), GitHub Actions |

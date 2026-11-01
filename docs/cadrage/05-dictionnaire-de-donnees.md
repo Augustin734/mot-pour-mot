@@ -23,8 +23,8 @@ Les champs des tables V1, avec leur type PostgreSQL et leur source. Les noms son
 | titre\_officiel | text | Open data AN | Titre complet |
 | titre\_court | text | Calculé ou IA | Titre en langage clair pour les cartes |
 | alias | text\[\] | Saisie, IA | Noms médiatiques (ex. nom du ministre) pour la recherche |
-| type | enum | Open data AN | Projet ou proposition de loi |
-| statut | enum | Calculé | En cours, adopté, rejeté, retiré |
+| type | enum | Open data AN | Projet ou proposition de loi, d'après le premier texte déposé (PRJL… ou PION…) |
+| statut | enum | Calculé | En cours, adopté (promulgué), rejeté, retiré (retrait de l'initiative) ; le rejet n'est pas encore déduit, car un rejet en première lecture ne clôt pas la navette |
 | date\_depot | date | Open data AN | Date de dépôt |
 | date\_derniere\_activite | timestamptz | Calculé | Dernière séance, scrutin ou étape |
 | score\_importance | numeric | Calculé | Tri de l'écran Actu |
@@ -38,7 +38,7 @@ Les champs des tables V1, avec leur type PostgreSQL et leur source. Les noms son
 | id | text, clé | Open data AN | Identifiant de l'acte législatif |
 | dossier\_id | text | Open data AN | Dossier concerné |
 | type | enum | Open data AN | Dépôt, commission, séance, CMP, lecture définitive, promulgation |
-| chambre | enum | Open data AN | AN ou Sénat |
+| chambre | enum, nullable | Open data AN | AN ou Sénat ; vide pour la CMP et la promulgation |
 | date | date | Open data AN | Date de l'étape |
 
 ## seance
@@ -70,9 +70,11 @@ Les champs des tables V1, avec leur type PostgreSQL et leur source. Les noms son
 | legislature | int, clé (1/2) | Open data AN | L'AN renumérote ses textes à chaque législature |
 | numero | text, clé (2/2) | Open data AN | Numéro du texte (ex. 3851), forme nettoyée de l'attribut bibard |
 | dossier\_id | text | Open data AN | Dossier législatif auquel appartient le texte |
-| type | enum | Open data AN | Texte déposé, texte de commission, texte adopté |
+| type | enum | Open data AN | Texte déposé ou texte de commission (le numéro d'un rapport est aussi celui du texte de la commission) ; les textes adoptés ont une numérotation à part (TA) et ne sont pas dans cette table |
 
 La clé est le couple (legislature, numero) : le « n° 3851 » de la 14e législature et celui de la 16e sont deux textes différents (décidé le 1er novembre 2026). Une intervention retrouve son texte avec `numero_texte` et la législature de sa séance. Ce lien n'est pas une clé étrangère stricte : une séance peut être chargée avant son texte, ou porter un numéro mal formé, et l'intervention est alors journalisée comme non rattachée au lieu de faire échouer la collecte.
+
+En V1, seuls les dossiers législatifs (les lois) sont chargés : les numéros des propositions de résolution et des rapports de mission de contrôle (environ 900 documents de la 17e) ne sont pas dans `texte`.
 
 ## intervention
 
@@ -84,13 +86,14 @@ La clé est le couple (legislature, numero) : le « n° 3851 » de la 14e légis
 | ordre | int | Comptes rendus | Rang dans la séance |
 | type\_debat | text | Comptes rendus | Discussion générale, articles, questions au gouvernement… (titre du Point de niveau 2, sans « (suite) ») |
 | code\_grammaire | text, nullable | Comptes rendus | Type brut de prise de parole (ex. `INTERRUPTION_1_10`), pour distinguer discours et interruptions |
-| numero\_texte | text, nullable | Comptes rendus | Texte discuté (attribut bibard nettoyé) ; clé de la liaison avec la loi |
+| numero\_texte | text, nullable | Comptes rendus | Texte discuté (attribut bibard nettoyé, propagé à tout le point de l'ordre du jour) ; clé de la liaison avec la loi |
+| dossier\_id | text, nullable | Calculé | Dossier de l'intervention : celui de son texte, sinon celui de son point de l'ordre du jour (`pipeline/liaison.py`) |
 | article, amendement | text, nullable | Comptes rendus | Article et amendement discutés, quand le compte rendu les indique |
 | acteur\_id | text, nullable | Comptes rendus | Identifiant brut de l'orateur (`ID_ACTEUR`, PA…), conservé même pour un ministre absent de la table depute |
-| depute\_id | text, nullable | Comptes rendus | Vide pour un ministre ou le président |
+| depute\_id | text, nullable | Calculé | Député qui parle, s'il en est un (aussi pour un député qui préside ou qui est ministre) ; vide pour un ministre non député |
 | orateur\_libelle | text | Comptes rendus | Nom affiché |
 | qualite | enum | Comptes rendus | Député, ministre, rapporteur, président, autre |
-| groupe\_id | text, nullable | Calculé | Groupe à la date de l'intervention |
+| groupe\_id | text, nullable | Calculé | Groupe à la date de l'intervention, seulement pour un député ou un rapporteur : un ministre parle au nom du gouvernement et un président de séance au nom de la présidence (charte de neutralité) |
 | texte | text | Comptes rendus | Propos intégral |
 | nb\_mots | int | Calculé | Pour le temps de parole |
 | recherche | tsvector | Calculé | Index plein texte, configuration française |
@@ -103,13 +106,15 @@ Le couple (seance\_id, ordre) est unique : c'est la clé naturelle qui rend le r
 | --- | --- | --- | --- |
 | groupe | id | text, clé | Identifiant d'organe AN |
 | groupe | sigle, nom | text | Ex. sigle court et nom complet |
-| groupe | couleur | text | Couleur traditionnelle du parti, fixée par la charte graphique |
+| groupe | couleur | text | Couleur officielle de l'AN (`couleurAssociee` de l'open data) |
+| groupe | ordre\_hemicycle | int | Rang de gauche à droite dans l'hémicycle, absent de l'open data : fichier `pipeline/reference/ordre_hemicycle.csv` (un groupe renommé garde le rang de son prédécesseur) |
 | groupe | legislature | int | Législature du groupe |
 | depute | id | text, clé | Identifiant d'acteur AN |
 | depute | nom, prenom | text | Identité |
 | depute | circonscription | text | Département et numéro |
 | appartenance | id | text, clé | Identifiant AN du mandat de groupe (PM…) |
 | appartenance | depute\_id, groupe\_id | text | Lien député ↔ groupe |
+| appartenance | qualite | enum | Membre, apparenté, président, non-inscrit ; un président a aussi un mandat de membre sur la même période |
 | appartenance | debut, fin | date | Période d'appartenance ; fin vide si en cours |
 
 ## scrutin et vote
@@ -117,15 +122,15 @@ Le couple (seance\_id, ordre) est unique : c'est la clé naturelle qui rend le r
 | Table | Champ | Type | Description |
 | --- | --- | --- | --- |
 | scrutin | id | text, clé | Identifiant AN du scrutin |
-| scrutin | seance\_id, dossier\_id | text | Séance et loi liées (loi parfois vide) |
+| scrutin | seance\_id, dossier\_id | text | Séance et loi liées. La loi n'est indiquée par l'AN que pour 38 % des scrutins de la 17e (souvent vide pour un amendement) ; un lien vers une séance ou une loi absentes de la base est laissé vide jusqu'au run suivant |
 | scrutin | numero, date | int, date | Numéro du scrutin dans la législature et date du vote |
 | scrutin | objet | text | Ce qui est voté |
 | scrutin | type | enum | Ordinaire, solennel, motion |
 | scrutin | resultat | enum | Adopté ou rejeté |
 | scrutin | pour, contre, abstentions, non\_votants | int | Décompte |
 | vote | scrutin\_id, depute\_id | text | Clé composée |
-| vote | groupe\_id | text | Groupe à la date du vote |
-| vote | position | enum | Pour, contre, abstention, non-votant |
+| vote | groupe\_id | text | Groupe à la date du vote, tel que l'AN le range dans la ventilation ; retrouvé dans `appartenance` quand l'AN donne un groupe inexistant (PO0, décembre 2024) |
+| vote | position | enum | Pour, contre, abstention, non-votant (non-votants volontaires compris) |
 | vote | par\_delegation | bool | Vote par délégation |
 
 ## Sorties IA

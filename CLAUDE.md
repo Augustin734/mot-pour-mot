@@ -25,8 +25,8 @@ Appli web open source qui montre, loi par loi, ce que chaque groupe politique de
 | Déploiement | Docker Compose pour la base, l'API et le front (ADR-009) ; Cloudflare Tunnel pour ouvrir aux amis |
 | Licence du code | AGPL-3.0 |
 | Données | L'open data AN fait foi (Licence Ouverte 2.0). Tricoteuses complète (ODbL : une base dérivée publiée reste sous ODbL). Datan sert au contrôle. |
-| Ordre des groupes | Toujours celui de l'hémicycle, de gauche à droite |
-| Couleurs | Couleurs traditionnelles des partis pour les groupes ; le reste de l'interface en noir sur fond cassé |
+| Ordre des groupes | Toujours celui de l'hémicycle, de gauche à droite (`groupe.ordre_hemicycle`, tiré de `pipeline/reference/ordre_hemicycle.csv`) |
+| Couleurs | Couleurs officielles de l'AN pour les groupes (`couleurAssociee` de l'open data, décidé le 1er nov. 2026) ; le reste de l'interface en noir sur fond cassé |
 | Commissions | Les comptes rendus de commission (HTML/PDF seulement) sont reportés en V1.1 ; la V1 ne couvre que la séance publique |
 
 ## Principes non négociables
@@ -54,6 +54,8 @@ Vérifié sur l'échantillon officiel `Assemblee-nationale/opendata_snippets` (X
 - La fréquence de mise à jour des séances n'est pas documentée (export daté de plusieurs jours) ; Tricoteuses sert pour la fraîcheur.
 - Vu en écrivant le parseur (1er nov. 2026) : les paragraphes d'un orateur sont regroupés dans un `inter_extraction` qui porte sa qualité ; une interruption est un paragraphe à part, rangé dans le bloc de l'orateur interrompu ; plus de la moitié des paragraphes n'ont pas de `bibard` et héritent le numéro du texte de leur `Point` parent.
 
+Vu sur les archives réelles de la 17e (1er nov. 2026, détail dans `03-inventaire-des-sources.md`) : le format des comptes rendus diffère de l'échantillon (camelCase, espace de noms, vrais identifiants CRSANR… et RUANR…), avec les mêmes attributs ; les exports sont quotidiens et le serveur gère les requêtes conditionnelles (ETag). Dans l'export réel, le numéro du texte (`bibard`, parfois écrit seul : « 912 ») n'est porté que par quelques paragraphes : il est propagé à tout le point de l'ordre du jour (66 % des 318 564 interventions de la 17e ont alors un numéro, et 96 % de ces numéros existent dans `texte`). Les gros textes budgétaires n'ont aucun numéro dans le compte rendu : à rattacher par le titre du point. Des versions provisoires (avant JO) ont des `ordre_absolu_seance` en double : elles sont mises de côté jusqu'à leur correction.
+
 Le schéma cible est dans `docs/cadrage/05-dictionnaire-de-donnees.md`. Les noms y sont provisoires et doivent être fixés au jalon 1.
 
 ## Structure du dépôt (cible)
@@ -71,11 +73,11 @@ docker-compose.yml
 ## Où on en est
 
 - Cadrage terminé et relu (19 documents dans `docs/cadrage/`). Wireframes mobiles validés (11 écrans, décrits dans `10-wireframes.md`). Les maquettes ordinateur sont obsolètes.
-- **Prochaine étape : jalon 1, modèle de données.**
-  - Schéma PostgreSQL et migrations Alembic : fait (`db/modeles.py`, migration `0001`, tests dans `tests/db/`, CI GitHub Actions).
-  - `docker-compose.yml` avec PostgreSQL, et l'API (`/api/v1/statut`) et le front (Next.js 16, TypeScript) en squelette : fait.
-  - Premier script de collecte sur l'échantillon Syceron : fait (`pipeline/syceron.py`, `pipeline/chargement.py`, `python -m pipeline.collecte_echantillon`). Sur les 132 séances : 56 764 interventions, 83,5 % avec un numéro de texte.
-- Ensuite : jalon 2 (collecte complète + découpage + liaison), puis jalon 3 (API + recherche). Le détail est dans la section Jalons de `00-cahier-des-charges.md` et dans `15-backlog-priorise.md`.
+- **Jalon 1 (modèle de données) : fait.** Schéma SQLAlchemy et migrations Alembic (`db/`), Docker Compose (base, API `/api/v1/statut`, front Next.js en squelette), CI GitHub Actions, parseur validé sur l'échantillon Syceron.
+- **Jalon 2 (collecte) : fait** (PR #6 à #14). `python -m pipeline.collecte` enchaîne, pour une législature (17e par défaut) : téléchargement avec cache (`pipeline/telechargement.py`), acteurs et organes (`acteurs_organes.py`), dossiers et textes (`dossiers.py`), comptes rendus (`comptes_rendus.py`), scrutins (`scrutins.py`), liaison (`liaison.py`) ; le run est enregistré dans `run_pipeline`. Chaque étape a aussi sa commande. Résultat sur la 17e : 648 séances, 318 564 interventions, 80,8 % rattachées à une loi, 97,8 % des interventions de députés avec un groupe, 9 459 scrutins et 1,4 million de votes ; run complet en 3 minutes environ.
+  - Choix à connaître : groupe attribué seulement aux députés et rapporteurs (pas aux ministres ni au président de séance) ; budgets rattachés par titre exact ; résolutions hors périmètre en V1 ; comptes rendus provisoires aux rangs en double mis de côté ; ordre de l'hémicycle dans `pipeline/reference/ordre_hemicycle.csv` ; l'API se connecte avec un utilisateur du rôle `lecture_seule`.
+  - Pistes notées pour plus tard : type `resolution` (2,3 % des interventions), alias de titres saisis à la main, rattachement des scrutins sans dossier (62 %) par la séance.
+- **Prochaine étape : jalon 3 (API et recherche).** Le détail est dans la section Jalons de `00-cahier-des-charges.md`, dans `08-specification-de-l-api.md` et dans `15-backlog-priorise.md`.
 - Questions encore ouvertes : nom de domaine, taille du modèle (1,7B ou 4B), machine dédiée ou non.
 
 ## Façon de travailler attendue

@@ -43,6 +43,26 @@ Le cœur de la V1 est faisable avec la séance publique : le XML de l'Assemblée
 | Fraîcheur | L'export des séances n'est pas daté du jour ; Tricoteuses fournit un suivi en temps réel. | AN comme référence, Tricoteuses pour la fraîcheur |
 | Licence Tricoteuses | ODbL 1.0 : attribution et partage à l'identique des bases dérivées. | Une base publiée qui en dérive doit rester sous ODbL |
 
+## Archives de la 17e législature (vérifié le 1er novembre 2026)
+
+Téléchargées par `python -m pipeline.telechargement`, sous `https://data.assemblee-nationale.fr/static/openData/repository/17/`. Les cinq archives étaient datées du jour même : les séances sont donc désormais exportées quotidiennement, contrairement à la vérification du 29 octobre. Le serveur renvoie `ETag` et `Last-Modified` et répond 304 à une requête conditionnelle : le run de nuit ne retéléchargera que ce qui a changé. Attention : le site répond depuis plusieurs serveurs dont les copies d'une même archive portent des dates et des ETag différents (constaté sur les scrutins). Le pipeline envoie donc la date seule (`If-Modified-Since`) et compare le contenu reçu au cache (SHA-256).
+
+| Archive | Chemin | Taille (zip / décompressé) | Contenu |
+| --- | --- | --- | --- |
+| Acteurs et organes | `amo/tous_acteurs_mandats_organes_xi_legislature/AMO30_…historique.json.zip` | 14 / 96 Mo | 3 175 acteurs (ministres compris), 10 819 organes, mandats datés |
+| Dossiers législatifs | `loi/dossiers_legislatifs/Dossiers_Legislatifs.json.zip` | 11 / 39 Mo | 3 380 dossiers, 7 574 documents (le numéro du texte est dans `notice.numNotice`) |
+| Scrutins | `loi/scrutins/Scrutins.json.zip` | 29 / 192 Mo | 9 459 scrutins, votes nominatifs ventilés par groupe, `seanceRef` vers la séance |
+| Comptes rendus | `vp/syceronbrut/syseron.xml.zip` | 61 / 354 Mo | 650 comptes rendus de séance, un fichier XML par séance |
+
+Constats utiles pour la suite du jalon 2 :
+
+- **Le format réel des comptes rendus diffère de l'échantillon** : balises en camelCase dans un espace de noms (`compteRendu`, `metadonnees`, `point`, `paragraphe`, `interExtraction`), mais les mêmes attributs (`id_acteur`, `ordre_absolu_seance`, `code_grammaire`, `bibard`, `art`, `adt`, `valeur_ptsodj`). Chaque fichier porte ses vrais identifiants : `uid` (CRSANR…) et `seanceRef` (RUANR…, la clé partagée avec les scrutins). Un paragraphe porte aussi `stime`, sa position en secondes dans la vidéo, et le compte rendu une `version` (avant JO ou définitive).
+- **Numéro du texte dans les comptes rendus réels** : `bibard` n'est porté que par environ 15 000 des 350 000 paragraphes, souvent pendant la discussion des articles, et il est parfois écrit sans « n° » (« 912 rectifié »). Propagé à tout le point de l'ordre du jour, il couvre 66 % des interventions de la 17e. Les grands textes budgétaires (PLF, PLFSS) n'en ont aucun : il faudra les rattacher par le titre du point. Le reste correspond surtout à des débats sans loi (questions au gouvernement, motions de censure, déclarations).
+- **Versions provisoires** : les comptes rendus les plus récents sont publiés « avant JO » ; deux d'entre eux (29 octobre 2026) avaient des rangs `ordre_absolu_seance` en double. Ils sont mis de côté jusqu'à leur correction.
+- **Scrutins** : 9 459 scrutins et 1,4 million de votes nominatifs pour la 17e. Seuls 38 % indiquent leur dossier. Défaut de l'open data : 146 scrutins (décembre 2024 surtout) rangent plusieurs groupes sous un identifiant inexistant (PO0) ; le pipeline retrouve alors le groupe par les appartenances. Une séance du 15 janvier 2026 (RUANR5L17S2026IDS30104, 18 scrutins) n'a pas de compte rendu dans l'export.
+- **Couleurs des groupes** : l'open data les fournit (`couleurAssociee`, ex. `#313567` pour le RN). L'ordre de l'hémicycle n'y est pas : `preseance` suit l'ordre protocolaire (taille des groupes). Il faut donc un petit fichier de référence pour l'ordre de gauche à droite.
+- **Un changement de nom crée un nouvel organe** : À Droite (PO845520), puis UDR (PO847173), puis UDDPLR (PO872880) sont trois groupes successifs, chacun avec ses dates.
+
 **Projet proche découvert** : [Open Hémicycle](https://github.com/kecyf/open-hemicycle) (AGPL), centré sur les votes et l'activité de chaque député, avec un indice de cohérence prévu. Il ne résume pas les positions par loi, mais son nom était très proche de notre nom provisoire « Hémicycle », d'où le choix de « Mot pour mot ».
 
 Sources : [page Débats de l'open data AN](https://data.assemblee-nationale.fr/travaux-parlementaires/debats), [FAQ open data AN](https://data.assemblee-nationale.fr/foire-aux-questions), [échantillon officiel opendata\_snippets](https://github.com/Assemblee-nationale/opendata_snippets), [@tricoteuses/assemblee](https://npm.io/package/@tricoteuses/assemblee), [sources vérifiées, hackathon AN 2026](https://github.com/mdaoudi-de/hackathon-an-2026-vigie-marches/blob/main/hackathon-an-2026/docs/sources-verifiees.md).

@@ -9,12 +9,12 @@ réelles. Les liaisons aux députés, groupes et dossiers viendront au jalon 2.
 
 import argparse
 import logging
-import urllib.request
 from pathlib import Path
 
 from db.connexion import creer_moteur
 from pipeline.chargement import Bilan, charger_seance
 from pipeline.syceron import lire_fichier
+from pipeline.telechargement import telecharger_url
 
 URL_ECHANTILLON = (
     "https://raw.githubusercontent.com/Assemblee-nationale/opendata_snippets/"
@@ -23,14 +23,6 @@ URL_ECHANTILLON = (
 CHEMIN_PAR_DEFAUT = Path("donnees/echantillon/SyceronBrut.sample.xml")
 
 journal = logging.getLogger("pipeline.collecte_echantillon")
-
-
-def telecharger(destination: Path) -> None:
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    journal.info("Téléchargement de l'échantillon vers %s", destination)
-    temporaire = destination.with_suffix(".partiel")
-    urllib.request.urlretrieve(URL_ECHANTILLON, temporaire)
-    temporaire.rename(destination)
 
 
 def collecter(chemin: Path) -> Bilan:
@@ -52,7 +44,7 @@ def main(arguments: list[str] | None = None) -> None:
     if not args.fichier.exists():
         if args.fichier != CHEMIN_PAR_DEFAUT:
             parseur.error(f"fichier introuvable : {args.fichier}")
-        telecharger(args.fichier)
+        telecharger_url(URL_ECHANTILLON, args.fichier)
 
     bilan = collecter(args.fichier)
     journal.info(

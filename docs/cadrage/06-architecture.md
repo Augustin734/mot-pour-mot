@@ -24,7 +24,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | Pipeline | Collecter, découper, lier, résumer, vérifier, calculer les indicateurs | Python, tâche planifiée | Oui, seul écrivain |
 | Base | Stocker les données parlementaires et les sorties IA, indexer | PostgreSQL + pgvector | — |
-| API | Servir les données au front, recherche | FastAPI | Non, lecture seule |
+| API | Servir les données au front, recherche | FastAPI | Non, lecture seule (aucune route d'écriture, et un utilisateur PostgreSQL membre du rôle `lecture_seule`) |
 | Front | Les 4 onglets, la fiche loi, la séance et le vote, mobile d'abord | React + Next.js (ADR-010) | Non |
 | Modèle local | Résumer et classer sur demande du pipeline | Ollama ou llama.cpp sur la RTX 3060 | Non |
 | Tunnel | Exposer l'appli sans ouvrir de port | Cloudflare Tunnel | Non |

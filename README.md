@@ -26,13 +26,23 @@ Qwen3 fine-tuné en local (QLoRA) · Docker Compose
 
     git clone https://github.com/Augustin734/mot-pour-mot.git
     cd mot-pour-mot
-    cp .env.example .env          # puis changer le mot de passe
+    cp .env.example .env          # puis changer les deux mots de passe
     docker compose up -d --build  # base, API, front
     uv sync                       # dépendances Python (https://docs.astral.sh/uv/)
     uv run alembic upgrade head   # création du schéma (le pipeline seul écrit en base)
+    uv run python -m db.utilisateur_api   # utilisateur de l'API, en lecture seule
     uv run pytest                 # tests
     uv run python -m pipeline.collecte_echantillon   # charge l'échantillon officiel (132 séances)
-    python -m pipeline.init       # premier chargement de la législature (à venir)
+    uv run python -m pipeline.collecte               # collecte complète de la 17e (~5 min au premier lancement)
+
+Ou étape par étape :
+
+    uv run python -m pipeline.telechargement         # télécharge les archives AN de la 17e (~120 Mo)
+    uv run python -m pipeline.acteurs_organes        # législatures, groupes, députés, appartenances
+    uv run python -m pipeline.dossiers               # dossiers législatifs, étapes, textes numérotés
+    uv run python -m pipeline.comptes_rendus         # séances de la 17e découpées en interventions (~2 min)
+    uv run python -m pipeline.scrutins               # scrutins et votes nominatifs (~2 min)
+    uv run python -m pipeline.liaison                # groupe de chaque orateur, dossier de chaque intervention
 
 L'appli est disponible sur http://localhost:3000, l'API sur http://localhost:8000/api/v1 (documentation : /api/v1/docs).
 Le modèle local est optionnel : sans lui, la recherche et les fiches sans résumé fonctionnent.

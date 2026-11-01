@@ -68,6 +68,7 @@ TYPES_ETAPE = ("depot", "commission", "seance", "cmp", "lecture_definitive", "pr
 CHAMBRES = ("an", "senat")
 TYPES_TEXTE = ("depose", "commission", "adopte")
 TYPES_SEANCE = ("seance_publique", "commission")
+QUALITES_APPARTENANCE = ("membre", "apparente", "president", "non_inscrit")
 QUALITES_ORATEUR = ("depute", "ministre", "rapporteur", "president", "autre")
 TYPES_SCRUTIN = ("ordinaire", "solennel", "motion")
 RESULTATS_SCRUTIN = ("adopte", "rejete")
@@ -95,7 +96,10 @@ class Groupe(Horodatage, Base):
     legislature: Mapped[int] = mapped_column(ForeignKey("legislature.numero"))
     sigle: Mapped[str]
     nom: Mapped[str]
-    couleur: Mapped[str | None]  # couleur traditionnelle du parti, ex. #E4032E
+    couleur: Mapped[str | None]  # couleur officielle de l'AN (couleurAssociee), ex. #313567
+    # Rang de gauche à droite dans l'hémicycle (pipeline/reference/ordre_hemicycle.csv) :
+    # absent de l'open data. Un groupe renommé garde le rang de son prédécesseur.
+    ordre_hemicycle: Mapped[int | None]
 
 
 class Depute(Horodatage, Base):
@@ -111,11 +115,16 @@ class Appartenance(Horodatage, Base):
     """Mandat de groupe daté : donne le groupe d'un député à une date."""
 
     __tablename__ = "appartenance"
-    __table_args__ = (CheckConstraint("fin IS NULL OR fin >= debut", name="periode"),)
+    __table_args__ = (
+        CheckConstraint("fin IS NULL OR fin >= debut", name="periode"),
+        valeurs_autorisees("qualite", QUALITES_APPARTENANCE),
+    )
 
     id: Mapped[str] = mapped_column(primary_key=True)  # PM…, identifiant AN du mandat
     depute_id: Mapped[str] = mapped_column(ForeignKey("depute.id"), index=True)
     groupe_id: Mapped[str] = mapped_column(ForeignKey("groupe.id"), index=True)
+    # Un président de groupe a deux mandats qui se chevauchent : membre et président.
+    qualite: Mapped[str]
     debut: Mapped[date]
     fin: Mapped[date | None]  # vide si en cours
 
@@ -164,7 +173,7 @@ class Etape(Horodatage, Base):
     id: Mapped[str] = mapped_column(primary_key=True)  # identifiant de l'acte législatif
     dossier_id: Mapped[str] = mapped_column(ForeignKey("dossier.id"), index=True)
     type: Mapped[str]
-    chambre: Mapped[str]
+    chambre: Mapped[str | None]  # vide pour la CMP et la promulgation, communes aux deux chambres
     date: Mapped[date | None]
 
 
@@ -228,6 +237,9 @@ class Intervention(Horodatage, Base):
     # un numéro mal formé. La liaison (numero_texte + legislature de la séance) est
     # calculée par le pipeline, et les interventions non rattachées sont journalisées.
     numero_texte: Mapped[str | None] = mapped_column(index=True)
+    # Dossier de l'intervention, calculé par pipeline.liaison : celui de son texte, sinon
+    # celui de son point de l'ordre du jour (ex. budget sans numéro, rattaché par le titre).
+    dossier_id: Mapped[str | None] = mapped_column(ForeignKey("dossier.id"), index=True)
     article: Mapped[str | None]
     amendement: Mapped[str | None]
     # Identifiant brut de l'orateur (PA…), y compris pour un ministre absent de depute.
