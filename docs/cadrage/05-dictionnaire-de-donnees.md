@@ -45,7 +45,7 @@ Les champs des tables V1, avec leur type PostgreSQL et leur source. Les noms son
 
 | Champ | Type | Source | Description |
 | --- | --- | --- | --- |
-| id | text, clé | Open data AN | Identifiant de la réunion |
+| id | text, clé | Open data AN | Identifiant de la réunion. L'échantillon Syceron n'en a pas : il est construit à partir de la date et de l'heure de début, avec le préfixe `ECH` (ex. `ECH-L14-201406301600`) |
 | legislature | int | Comptes rendus | Champ `Legislature` des métadonnées ; sert à retrouver le texte discuté |
 | type | enum | Open data AN | Séance publique (réunion de commission à partir de la V1.1) |
 | organe\_id | text | Open data AN | Commission, ou hall pour la séance publique |
@@ -82,7 +82,8 @@ La clé est le couple (legislature, numero) : le « n° 3851 » de la 14e légis
 | seance\_id | text | Comptes rendus | Séance |
 | point\_id | text, nullable | Comptes rendus | Point de l'ordre du jour |
 | ordre | int | Comptes rendus | Rang dans la séance |
-| type\_debat | text | Comptes rendus | Discussion générale, articles, questions au gouvernement… |
+| type\_debat | text | Comptes rendus | Discussion générale, articles, questions au gouvernement… (titre du Point de niveau 2, sans « (suite) ») |
+| code\_grammaire | text, nullable | Comptes rendus | Type brut de prise de parole (ex. `INTERRUPTION_1_10`), pour distinguer discours et interruptions |
 | numero\_texte | text, nullable | Comptes rendus | Texte discuté (attribut bibard nettoyé) ; clé de la liaison avec la loi |
 | article, amendement | text, nullable | Comptes rendus | Article et amendement discutés, quand le compte rendu les indique |
 | acteur\_id | text, nullable | Comptes rendus | Identifiant brut de l'orateur (`ID_ACTEUR`, PA…), conservé même pour un ministre absent de la table depute |
