@@ -37,6 +37,7 @@ Qwen3 fine-tuné en local (QLoRA) · Docker Compose
     uv run python -m pipeline.acteurs_organes        # législatures, groupes, députés, appartenances
     uv run python -m pipeline.dossiers               # dossiers législatifs, étapes, textes numérotés
     uv run python -m pipeline.comptes_rendus         # séances de la 17e découpées en interventions (~2 min)
+    uv run python -m pipeline.scrutins               # scrutins et votes nominatifs (~2 min)
     uv run python -m pipeline.liaison                # groupe de chaque orateur, dossier de chaque intervention
     python -m pipeline.init       # premier chargement de la législature (à venir)
 

@@ -122,15 +122,15 @@ Le couple (seance\_id, ordre) est unique : c'est la clé naturelle qui rend le r
 | Table | Champ | Type | Description |
 | --- | --- | --- | --- |
 | scrutin | id | text, clé | Identifiant AN du scrutin |
-| scrutin | seance\_id, dossier\_id | text | Séance et loi liées (loi parfois vide) |
+| scrutin | seance\_id, dossier\_id | text | Séance et loi liées. La loi n'est indiquée par l'AN que pour 38 % des scrutins de la 17e (souvent vide pour un amendement) ; un lien vers une séance ou une loi absentes de la base est laissé vide jusqu'au run suivant |
 | scrutin | numero, date | int, date | Numéro du scrutin dans la législature et date du vote |
 | scrutin | objet | text | Ce qui est voté |
 | scrutin | type | enum | Ordinaire, solennel, motion |
 | scrutin | resultat | enum | Adopté ou rejeté |
 | scrutin | pour, contre, abstentions, non\_votants | int | Décompte |
 | vote | scrutin\_id, depute\_id | text | Clé composée |
-| vote | groupe\_id | text | Groupe à la date du vote |
-| vote | position | enum | Pour, contre, abstention, non-votant |
+| vote | groupe\_id | text | Groupe à la date du vote, tel que l'AN le range dans la ventilation ; retrouvé dans `appartenance` quand l'AN donne un groupe inexistant (PO0, décembre 2024) |
+| vote | position | enum | Pour, contre, abstention, non-votant (non-votants volontaires compris) |
 | vote | par\_delegation | bool | Vote par délégation |
 
 ## Sorties IA
