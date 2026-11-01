@@ -198,17 +198,13 @@ def charger(connexion: Connection, lus: Dossiers) -> dict[str, int]:
     }
 
 
-def main(arguments: list[str] | None = None) -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    parseur = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parseur.add_argument("--legislature", type=int, default=17)
-    args = parseur.parse_args(arguments)
-
-    archive = telecharger_archive("dossiers", args.legislature)
+def collecter(legislature: int) -> dict[str, int]:
+    """Télécharge, lit et charge les dossiers ; renvoie les lignes écrites par table."""
+    archive = telecharger_archive("dossiers", legislature)
     with creer_moteur().begin() as connexion:
         # Les législatures viennent du jeu « acteurs et organes », à charger avant.
         connues = set(connexion.scalars(select(Legislature.numero)))
-        lus = lire_archive(archive.chemin, args.legislature, connues)
+        lus = lire_archive(archive.chemin, legislature, connues)
         ecrites = charger(connexion, lus)
     journal.info(
         "%d dossiers, %d étapes, %d textes lus ; lignes insérées ou modifiées : %s ; textes ignorés : %s",
@@ -218,6 +214,15 @@ def main(arguments: list[str] | None = None) -> None:
         ecrites,
         lus.ignores,
     )
+    return ecrites
+
+
+def main(arguments: list[str] | None = None) -> None:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    parseur = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parseur.add_argument("--legislature", type=int, default=17)
+    args = parseur.parse_args(arguments)
+    collecter(args.legislature)
 
 
 if __name__ == "__main__":

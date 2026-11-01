@@ -40,6 +40,13 @@ def collecter(legislature: int) -> tuple[Bilan, list[str], list[str]]:
             except Exception:
                 journal.exception("%s : séance non chargée", nom)
                 erreurs.append(nom)
+    journal.info(
+        "%d séances lues, %d interventions insérées ou modifiées, %d mises de côté, %d en erreur",
+        bilan.seances,
+        bilan.interventions_ecrites,
+        len(mis_de_cote),
+        len(erreurs),
+    )
     return bilan, mis_de_cote, erreurs
 
 
@@ -49,14 +56,7 @@ def main(arguments: list[str] | None = None) -> None:
     parseur.add_argument("--legislature", type=int, default=17)
     args = parseur.parse_args(arguments)
 
-    bilan, mis_de_cote, erreurs = collecter(args.legislature)
-    journal.info(
-        "%d séances lues, %d interventions insérées ou modifiées, %d mises de côté, %d en erreur",
-        bilan.seances,
-        bilan.interventions_ecrites,
-        len(mis_de_cote),
-        len(erreurs),
-    )
+    _, _, erreurs = collecter(args.legislature)
     if erreurs:
         raise SystemExit(1)
 

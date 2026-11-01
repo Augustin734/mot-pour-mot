@@ -167,13 +167,9 @@ def charger(connexion: Connection, lus: Iterator[ScrutinLu]) -> BilanScrutins:
     return bilan
 
 
-def main(arguments: list[str] | None = None) -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    parseur = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parseur.add_argument("--legislature", type=int, default=17)
-    args = parseur.parse_args(arguments)
-
-    archive = telecharger_archive("scrutins", args.legislature)
+def collecter(legislature: int) -> BilanScrutins:
+    """Télécharge, lit et charge les scrutins de la législature."""
+    archive = telecharger_archive("scrutins", legislature)
     with creer_moteur().begin() as connexion:
         bilan = charger(connexion, lire_archive(archive.chemin))
     journal.info(
@@ -188,6 +184,15 @@ def main(arguments: list[str] | None = None) -> None:
         bilan.votes_ignores,
         bilan.groupes_retrouves,
     )
+    return bilan
+
+
+def main(arguments: list[str] | None = None) -> None:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    parseur = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parseur.add_argument("--legislature", type=int, default=17)
+    args = parseur.parse_args(arguments)
+    collecter(args.legislature)
 
 
 if __name__ == "__main__":
