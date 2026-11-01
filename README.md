@@ -34,6 +34,7 @@ Qwen3 fine-tuné en local (QLoRA) · Docker Compose
     uv run pytest                 # tests
     uv run python -m pipeline.collecte_echantillon   # charge l'échantillon officiel (132 séances)
     uv run python -m pipeline.telechargement         # télécharge les archives AN de la 17e (~120 Mo)
+    uv run python -m pipeline.acteurs_organes        # législatures, groupes, députés, appartenances
     python -m pipeline.init       # premier chargement de la législature (à venir)
 
 L'appli est disponible sur http://localhost:3000, l'API sur http://localhost:8000/api/v1 (documentation : /api/v1/docs).

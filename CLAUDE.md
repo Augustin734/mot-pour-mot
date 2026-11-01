@@ -25,8 +25,8 @@ Appli web open source qui montre, loi par loi, ce que chaque groupe politique de
 | Déploiement | Docker Compose pour la base, l'API et le front (ADR-009) ; Cloudflare Tunnel pour ouvrir aux amis |
 | Licence du code | AGPL-3.0 |
 | Données | L'open data AN fait foi (Licence Ouverte 2.0). Tricoteuses complète (ODbL : une base dérivée publiée reste sous ODbL). Datan sert au contrôle. |
-| Ordre des groupes | Toujours celui de l'hémicycle, de gauche à droite |
-| Couleurs | Couleurs traditionnelles des partis pour les groupes ; le reste de l'interface en noir sur fond cassé |
+| Ordre des groupes | Toujours celui de l'hémicycle, de gauche à droite (`groupe.ordre_hemicycle`, tiré de `pipeline/reference/ordre_hemicycle.csv`) |
+| Couleurs | Couleurs officielles de l'AN pour les groupes (`couleurAssociee` de l'open data, décidé le 1er nov. 2026) ; le reste de l'interface en noir sur fond cassé |
 | Commissions | Les comptes rendus de commission (HTML/PDF seulement) sont reportés en V1.1 ; la V1 ne couvre que la séance publique |
 
 ## Principes non négociables
@@ -77,7 +77,7 @@ docker-compose.yml
   - Schéma PostgreSQL et migrations Alembic : fait (`db/modeles.py`, migration `0001`, tests dans `tests/db/`, CI GitHub Actions).
   - `docker-compose.yml` avec PostgreSQL, et l'API (`/api/v1/statut`) et le front (Next.js 16, TypeScript) en squelette : fait.
   - Premier script de collecte sur l'échantillon Syceron : fait (`pipeline/syceron.py`, `pipeline/chargement.py`, `python -m pipeline.collecte_echantillon`). Sur les 132 séances : 56 764 interventions, 83,5 % avec un numéro de texte.
-- **Jalon 2 en cours** (collecte de la 17e législature, code paramétré par législature). Découpage en PR : CI en Node 24 (#6, fait) ; rôle `lecture_seule` pour l'API (#7, fait, `db/utilisateur_api.py`) ; téléchargement des archives AN (`pipeline/telechargement.py`) ; acteurs et organes (couleurs prises dans l'open data, `couleurAssociee` ; ordre de l'hémicycle absent de l'open data, donc un fichier de référence versionné, clé PO…, et une colonne `groupe.ordre_hemicycle`) ; dossiers et textes ; comptes rendus réels de la 17e ; liaison orateur → groupe et point → dossier, avec bilan des non rattachés ; scrutins ; point d'entrée `python -m pipeline.collecte`.
+- **Jalon 2 en cours** (collecte de la 17e législature, code paramétré par législature). Découpage en PR : CI en Node 24 (#6, fait) ; rôle `lecture_seule` pour l'API (#7, fait, `db/utilisateur_api.py`) ; téléchargement des archives AN (#8, fait, `pipeline/telechargement.py`) ; acteurs et organes (`pipeline/acteurs_organes.py` : couleurs de l'open data, ordre de l'hémicycle dans un fichier de référence, `appartenance.qualite`) ; dossiers et textes ; comptes rendus réels de la 17e ; liaison orateur → groupe et point → dossier, avec bilan des non rattachés ; scrutins ; point d'entrée `python -m pipeline.collecte`.
 - Ensuite : jalon 3 (API + recherche). Le détail est dans la section Jalons de `00-cahier-des-charges.md` et dans `15-backlog-priorise.md`.
 - Questions encore ouvertes : nom de domaine, taille du modèle (1,7B ou 4B), machine dédiée ou non.
 
