@@ -1,0 +1,35 @@
+/* Direction artistique : noir sur fond cassé, seuls les groupes portent de la couleur.
+   Les jetons complets (couleurs des groupes, espacements) viendront avec le design system. */
+:root {
+  --fond: #f5f3ee;
+  --texte: #111111;
+  --texte-secondaire: #555555;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fond: #141414;
+    --texte: #f2f0eb;
+    --texte-secondaire: #a8a8a8;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--texte);
+  background: var(--fond);
+  font-family: var(--police-inter), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
