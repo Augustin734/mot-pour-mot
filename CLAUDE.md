@@ -75,7 +75,8 @@ docker-compose.yml
   - Schéma PostgreSQL et migrations Alembic : fait (`db/modeles.py`, migration `0001`, tests dans `tests/db/`, CI GitHub Actions).
   - `docker-compose.yml` avec PostgreSQL, et l'API (`/api/v1/statut`) et le front (Next.js 16, TypeScript) en squelette : fait.
   - Premier script de collecte sur l'échantillon Syceron : fait (`pipeline/syceron.py`, `pipeline/chargement.py`, `python -m pipeline.collecte_echantillon`). Sur les 132 séances : 56 764 interventions, 83,5 % avec un numéro de texte.
-- Ensuite : jalon 2 (collecte complète + découpage + liaison), puis jalon 3 (API + recherche). Le détail est dans la section Jalons de `00-cahier-des-charges.md` et dans `15-backlog-priorise.md`.
+- **Jalon 2 en cours** (collecte de la 17e législature, code paramétré par législature). Découpage en PR : CI en Node 24 (#6) ; rôle `lecture_seule` pour l'API (`db/utilisateur_api.py`) ; téléchargement des archives AN ; acteurs et organes (avec un fichier de référence versionné pour les couleurs et l'ordre de l'hémicycle, absents de l'open data, et une colonne `groupe.ordre_hemicycle`) ; dossiers et textes ; comptes rendus réels de la 17e ; liaison orateur → groupe et point → dossier, avec bilan des non rattachés ; scrutins ; point d'entrée `python -m pipeline.collecte`.
+- Ensuite : jalon 3 (API + recherche). Le détail est dans la section Jalons de `00-cahier-des-charges.md` et dans `15-backlog-priorise.md`.
 - Questions encore ouvertes : nom de domaine, taille du modèle (1,7B ou 4B), machine dédiée ou non.
 
 ## Façon de travailler attendue

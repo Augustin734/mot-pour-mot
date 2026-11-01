@@ -29,7 +29,9 @@ services:
       dockerfile: api/Dockerfile
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-motpourmot}:${POSTGRES_PASSWORD}@base:5432/${POSTGRES_DB:-motpourmot}
+      # Utilisateur membre du rôle lecture_seule (python -m db.utilisateur_api) : même en cas
+      # de faille dans l'API, la base refuse toute écriture.
+      DATABASE_URL: postgresql+psycopg://${API_POSTGRES_USER:-motpourmot_api}:${API_POSTGRES_PASSWORD:?à définir dans .env}@base:5432/${POSTGRES_DB:-motpourmot}
     ports:
       - "127.0.0.1:${API_PORT:-8000}:8000"
     depends_on:
