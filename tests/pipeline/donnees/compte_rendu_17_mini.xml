@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Compte rendu FICTIF (noms et propos inventés) qui reprend la structure exacte de
+     l'export réel de la 17e législature (syseron.xml.zip, vérifié le 1er novembre 2026) :
+     espace de noms, balises en camelCase, attributs en minuscules. -->
+<compteRendu xmlns="http://schemas.assemblee-nationale.fr/referentiel">
+  <uid>CRSANR5L17S2025O1N999</uid>
+  <seanceRef>RUANR5L17S2025IDS99999</seanceRef>
+  <sessionRef>SCR5A2025O1</sessionRef>
+  <metadonnees>
+    <dateSeance>20250115150000000</dateSeance>
+    <numSeance>99</numSeance>
+    <legislature>17</legislature>
+    <version>avant_JO</version>
+  </metadonnees>
+  <contenu>
+    <ouvertureSeance nivpoint="1" valeur_ptsodj="0" ordre_absolu_seance="1" code_grammaire="OUV_SEAN_1_1" valeur="">
+      <orateurs/>
+      <texte>Présidence de Mme Claire Exemple</texte>
+      <paragraphe valeur_ptsodj="0" ordre_absolu_seance="2" id_acteur="PA1" code_grammaire="OUV_SEAN_2_1" valeur="" roledebat="president">
+        <orateurs><orateur><nom>Mme la présidente</nom><id>1</id><qualite/></orateur></orateurs>
+        <texte stime="12.5">La séance est ouverte.</texte>
+      </paragraphe>
+    </ouvertureSeance>
+    <point nivpoint="1" valeur_ptsodj="1" ordre_absolu_seance="5" code_grammaire="TITRE_TEXTE_DISCUSSION" valeur="">
+      <orateurs/>
+      <texte>Jardins partagés</texte>
+      <point nivpoint="2" valeur_ptsodj="1" ordre_absolu_seance="6" code_grammaire="DISC_GENERALE_1" valeur="">
+        <orateurs/>
+        <texte>Discussion générale</texte>
+        <!-- Bloc d'orateur : qualité portée par l'attribut. Pas de bibard : le numéro du
+             point sera propagé. -->
+        <interExtraction nom_orateur="M. Paul Fictif" qualite="rapporteur de la commission des affaires économiques" id_acteur="PA2" id_mandat="PM2">
+          <paragraphe valeur_ptsodj="1" ordre_absolu_seance="7" id_acteur="PA2" code_grammaire="DISC_GENERALE_2" valeur="" bibard="">
+            <orateurs><orateur><nom>M. Paul Fictif</nom><id>2</id><qualite/></orateur></orateurs>
+            <texte stime="60.1">Ce texte crée des jardins partagés dans chaque commune.</texte>
+          </paragraphe>
+        </interExtraction>
+      </point>
+      <point nivpoint="2" valeur_ptsodj="1" ordre_absolu_seance="8" code_grammaire="DISC_ARTICLES_1" valeur="">
+        <orateurs/>
+        <texte>Discussion des articles</texte>
+        <point nivpoint="3" valeur_ptsodj="1" ordre_absolu_seance="9" code_grammaire="DISC_ARTICLES_2_1" valeur=" 1er">
+          <orateurs/>
+          <texte>Article 1er</texte>
+          <!-- Numéro écrit seul, comme dans l'export réel. -->
+          <paragraphe valeur_ptsodj="1" ordre_absolu_seance="10" id_acteur="PA3" code_grammaire="PAROLE_GENERIQUE" valeur="" bibard=" 912" art=" 1er" adt=" 6">
+            <orateurs><orateur><nom>Mme Lou Exemple</nom><id>3</id><qualite/></orateur></orateurs>
+            <texte>Cet amendement précise la taille des parcelles.</texte>
+          </paragraphe>
+          <paragraphe valeur_ptsodj="1" ordre_absolu_seance="11" id_acteur="PA3" code_grammaire="PAROLE_GENERIQUE" valeur="" bibard=" 912 rectifié">
+            <orateurs><orateur><nom>Mme Lou Exemple</nom><id>3</id><qualite/></orateur></orateurs>
+            <texte>Je le retire.</texte>
+          </paragraphe>
+          <!-- Texte discuté en commun, marqueur mal fermé (vu dans l'export réel). -->
+          <paragraphe valeur_ptsodj="1" ordre_absolu_seance="12" id_acteur="PA4" code_grammaire="PAROLE_GENERIQUE" valeur="" bibard=" (n[[os]&#160;1281 et 1364)">
+            <orateurs><orateur><nom>M. Sam Fictif</nom><id>4</id><qualite>ministre de l’agriculture</qualite></orateur></orateurs>
+            <texte>Avis favorable.</texte>
+          </paragraphe>
+        </point>
+      </point>
+    </point>
+    <!-- Changement de présidence : contient aussi des paragraphes. -->
+    <changementPresidence nivpoint="1" valeur_ptsodj="1" ordre_absolu_seance="13" code_grammaire="CHGT_PRESID_1_1" valeur="">
+      <orateurs/>
+      <texte>Présidence de M. Noé Exemple</texte>
+      <paragraphe valeur_ptsodj="1" ordre_absolu_seance="14" id_acteur="PA5" code_grammaire="REPRISE_SEANCE_1" valeur="" roledebat="president">
+        <orateurs><orateur><nom>M. le président</nom><id>5</id><qualite/></orateur></orateurs>
+        <texte>La séance est reprise.</texte>
+      </paragraphe>
+    </changementPresidence>
+    <point nivpoint="1" valeur_ptsodj="2" ordre_absolu_seance="15" code_grammaire="TITRE_TEXTE_DISCUSSION" valeur="">
+      <orateurs/>
+      <texte>Questions au Gouvernement</texte>
+      <paragraphe valeur_ptsodj="2" ordre_absolu_seance="16" id_acteur="PA3" code_grammaire="QG_2_1" valeur="">
+        <orateurs><orateur><nom>Mme Lou Exemple</nom><id>3</id><qualite/></orateur></orateurs>
+        <texte>Ma question porte sur les horloges publiques.</texte>
+      </paragraphe>
+    </point>
+  </contenu>
+</compteRendu>
