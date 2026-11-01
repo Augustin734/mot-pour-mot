@@ -206,14 +206,10 @@ def _pourcentage(partie: int, total: int) -> str:
     return f"{100 * partie / total:.1f} %" if total else "-"
 
 
-def main(arguments: list[str] | None = None) -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    parseur = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parseur.add_argument("--legislature", type=int, default=17)
-    args = parseur.parse_args(arguments)
-
+def collecter(legislature: int) -> BilanLiaison:
+    """Lie les interventions de la législature et journalise le bilan."""
     with creer_moteur().begin() as connexion:
-        bilan = lier(connexion, args.legislature)
+        bilan = lier(connexion, legislature)
     journal.info("Lignes modifiées : %s", bilan.ecritures)
     journal.info(
         "%d interventions, %s rattachées à un dossier ; %s des interventions de députés avec un groupe",
@@ -223,6 +219,15 @@ def main(arguments: list[str] | None = None) -> None:
     )
     journal.info("Numéros de texte inconnus les plus cités : %s", bilan.numeros_inconnus)
     journal.info("Points sans dossier les plus longs : %s", bilan.points_sans_dossier)
+    return bilan
+
+
+def main(arguments: list[str] | None = None) -> None:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    parseur = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parseur.add_argument("--legislature", type=int, default=17)
+    args = parseur.parse_args(arguments)
+    collecter(args.legislature)
 
 
 if __name__ == "__main__":

@@ -177,14 +177,10 @@ def charger(connexion: Connection, ref: Referentiel) -> dict[str, int]:
     }
 
 
-def main(arguments: list[str] | None = None) -> None:
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-    parseur = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parseur.add_argument("--legislature", type=int, default=17)
-    args = parseur.parse_args(arguments)
-
-    archive = telecharger_archive("acteurs_organes", args.legislature)
-    ref = lire_archive(archive.chemin, args.legislature, lire_ordre_hemicycle(FICHIER_ORDRE, args.legislature))
+def collecter(legislature: int) -> dict[str, int]:
+    """Télécharge, lit et charge le jeu ; renvoie les lignes écrites par table."""
+    archive = telecharger_archive("acteurs_organes", legislature)
+    ref = lire_archive(archive.chemin, legislature, lire_ordre_hemicycle(FICHIER_ORDRE, legislature))
     with creer_moteur().begin() as connexion:
         ecrites = charger(connexion, ref)
     journal.info(
@@ -194,6 +190,15 @@ def main(arguments: list[str] | None = None) -> None:
         len(ref.appartenances),
         ecrites,
     )
+    return ecrites
+
+
+def main(arguments: list[str] | None = None) -> None:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+    parseur = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parseur.add_argument("--legislature", type=int, default=17)
+    args = parseur.parse_args(arguments)
+    collecter(args.legislature)
 
 
 if __name__ == "__main__":
