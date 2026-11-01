@@ -71,7 +71,7 @@ docker-compose.yml
 
 - Cadrage terminé et relu (19 documents dans `docs/cadrage/`). Wireframes mobiles validés (11 écrans, décrits dans `10-wireframes.md`). Les maquettes ordinateur sont obsolètes.
 - **Prochaine étape : jalon 1, modèle de données.**
-  - Schéma PostgreSQL et migrations Alembic pour les tables V1 du dictionnaire : `dossier`, `etape`, `texte`, `seance`, `point_odj`, `intervention`, `groupe`, `depute`, `appartenance`, `scrutin`, `vote`, plus les tables IA et d'exploitation.
+  - Schéma PostgreSQL et migrations Alembic : fait (`db/modeles.py`, migration `0001`, tests dans `tests/db/`, CI GitHub Actions).
   - `docker-compose.yml` avec PostgreSQL, et l'API et le front en squelette.
   - Premier script de collecte sur l'échantillon Syceron.
 - Ensuite : jalon 2 (collecte complète + découpage + liaison), puis jalon 3 (API + recherche). Le détail est dans la section Jalons de `00-cahier-des-charges.md` et dans `15-backlog-priorise.md`.

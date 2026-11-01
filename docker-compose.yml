@@ -1,0 +1,27 @@
+# Services de Mot pour mot (ADR-009).
+# Jalon 1 : la base seule ; l'API et le front arrivent ensuite.
+# Le modèle IA tourne hors Docker pour accéder au GPU (ADR-004).
+
+services:
+  base:
+    # PostgreSQL 17 avec pgvector déjà installé : l'extension ne sera activée
+    # qu'en V1.1, mais l'image n'aura pas à changer.
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-motpourmot}
+      POSTGRES_USER: ${POSTGRES_USER:-motpourmot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?à définir dans .env}
+    ports:
+      # Exposé seulement en local : la base n'est jamais ouverte sur le réseau.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - donnees_base:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  donnees_base:

@@ -26,9 +26,12 @@ Qwen3 fine-tuné en local (QLoRA) · Docker Compose
 
     git clone https://github.com/Augustin734/mot-pour-mot.git
     cd mot-pour-mot
-    cp .env.example .env
-    docker compose up -d          # base, API, front
-    python -m pipeline.init       # premier chargement de la législature
+    cp .env.example .env          # puis changer le mot de passe
+    docker compose up -d          # base (API et front à venir)
+    uv sync                       # dépendances Python (https://docs.astral.sh/uv/)
+    uv run alembic upgrade head   # création du schéma
+    uv run pytest                 # tests
+    python -m pipeline.init       # premier chargement de la législature (à venir)
 
 L'appli est disponible sur http://localhost:[port].
 Le modèle local est optionnel : sans lui, la recherche et les fiches sans résumé fonctionnent.
