@@ -1,0 +1,21 @@
+# Ordre des groupes dans l'hémicycle, de gauche (1) à droite. Absent de l'open data AN.
+# Méthode (1er nov. 2026) : médiane des sièges (placeHemicycle, numérotés de la droite vers
+# la gauche) des membres actuels de chaque groupe. Les non-inscrits, dispersés, sont placés
+# en dernier comme sur le site de l'AN. Un groupe renommé (nouvel organe PO…) garde le rang
+# de son prédécesseur. À revoir à chaque création de groupe : le pipeline signale tout
+# groupe absent de ce fichier.
+legislature,groupe_id,sigle,ordre_hemicycle
+17,PO845413,LFI-NFP,1
+17,PO845514,GDR,2
+17,PO845439,ECOS,3
+17,PO845485,LIOT,4
+17,PO845419,SOC,5
+17,PO845454,DEM,6
+17,PO845407,EPR,7
+17,PO845470,HOR,8
+17,PO845425,DR,9
+17,PO845520,AD,10
+17,PO847173,UDR,10
+17,PO872880,UDDPLR,10
+17,PO845401,RN,11
+17,PO840056,NI,12

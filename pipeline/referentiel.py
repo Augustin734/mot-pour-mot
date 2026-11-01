@@ -1,4 +1,8 @@
-"""Référentiel minimal en attendant la collecte du jeu « acteurs et organes » (jalon 2)."""
+"""Législatures connues d'avance, pour charger une séance avant le jeu « acteurs et organes ».
+
+Les dates de l'open data (pipeline.acteurs_organes) remplacent ensuite celles-ci : par
+exemple, la 17e y commence le 1er juillet 2024, et non le 18 (première séance).
+"""
 
 from datetime import date
 

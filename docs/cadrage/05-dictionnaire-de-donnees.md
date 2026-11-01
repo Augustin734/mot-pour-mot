@@ -103,13 +103,15 @@ Le couple (seance\_id, ordre) est unique : c'est la clé naturelle qui rend le r
 | --- | --- | --- | --- |
 | groupe | id | text, clé | Identifiant d'organe AN |
 | groupe | sigle, nom | text | Ex. sigle court et nom complet |
-| groupe | couleur | text | Couleur traditionnelle du parti, fixée par la charte graphique |
+| groupe | couleur | text | Couleur officielle de l'AN (`couleurAssociee` de l'open data) |
+| groupe | ordre\_hemicycle | int | Rang de gauche à droite dans l'hémicycle, absent de l'open data : fichier `pipeline/reference/ordre_hemicycle.csv` (un groupe renommé garde le rang de son prédécesseur) |
 | groupe | legislature | int | Législature du groupe |
 | depute | id | text, clé | Identifiant d'acteur AN |
 | depute | nom, prenom | text | Identité |
 | depute | circonscription | text | Département et numéro |
 | appartenance | id | text, clé | Identifiant AN du mandat de groupe (PM…) |
 | appartenance | depute\_id, groupe\_id | text | Lien député ↔ groupe |
+| appartenance | qualite | enum | Membre, apparenté, président, non-inscrit ; un président a aussi un mandat de membre sur la même période |
 | appartenance | debut, fin | date | Période d'appartenance ; fin vide si en cours |
 
 ## scrutin et vote
