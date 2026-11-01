@@ -222,6 +222,8 @@ class Intervention(Horodatage, Base):
     point_id: Mapped[str | None] = mapped_column(ForeignKey("point_odj.id"), index=True)
     ordre: Mapped[int]  # ordre_absolu_seance
     type_debat: Mapped[str | None]
+    # Type brut de prise de parole dans le compte rendu (ex. INTERRUPTION_1_10).
+    code_grammaire: Mapped[str | None]
     # Pas de clé étrangère vers texte : une séance peut arriver avant son texte, ou porter
     # un numéro mal formé. La liaison (numero_texte + legislature de la séance) est
     # calculée par le pipeline, et les interventions non rattachées sont journalisées.
