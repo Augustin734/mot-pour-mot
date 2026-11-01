@@ -1,0 +1,31 @@
+[project]
+name = "mot-pour-mot"
+version = "0.1.0"
+description = "Ce que chaque groupe de l'Assemblée nationale pense d'une loi, citations vérifiées mot pour mot."
+readme = "README.md"
+license = "AGPL-3.0-only"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.20.1",
+    "fastapi>=0.162.0",
+    "psycopg[binary]>=3.2",
+    "python-dotenv>=1.2.4",
+    "sqlalchemy>=2.0",
+    "tzdata>=2026.6",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[tool.uv]
+# Dépôt d'application, pas de paquet à publier : db/, pipeline/ et api/
+# sont importés depuis la racine.
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.2.0",
+]

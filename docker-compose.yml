@@ -1,0 +1,51 @@
+# Services de Mot pour mot (ADR-009) : base, API et front.
+# Le pipeline et le modèle IA tournent hors Docker (GPU, Planificateur de tâches : ADR-004).
+# Tous les ports sont liés à 127.0.0.1 : rien n'est ouvert sur le réseau local.
+
+services:
+  base:
+    # PostgreSQL 17 avec pgvector déjà installé : l'extension ne sera activée
+    # qu'en V1.1, mais l'image n'aura pas à changer.
+    image: pgvector/pgvector:pg17
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-motpourmot}
+      POSTGRES_USER: ${POSTGRES_USER:-motpourmot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?à définir dans .env}
+    ports:
+      # Exposé seulement en local : la base n'est jamais ouverte sur le réseau.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - donnees_base:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-motpourmot}:${POSTGRES_PASSWORD}@base:5432/${POSTGRES_DB:-motpourmot}
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    depends_on:
+      base:
+        condition: service_healthy
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    environment:
+      # Le front appelle l'API côté serveur, par le réseau interne de Docker.
+      API_URL: http://api:8000
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
+    depends_on:
+      - api
+
+volumes:
+  donnees_base:

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Deux comptes rendus FICTIFS (noms et propos inventés) qui reprennent la structure exacte
+     de l'échantillon Syceron, avec un cas particulier par élément. -->
+<syceronBrut>
+  <CompteRendu>
+    <Metadonnees>
+      <DateSeance>20140630160000000</DateSeance>
+      <NumSeance>255</NumSeance>
+      <Legislature>14</Legislature>
+      <Session>Session ordinaire 2013-2014</Session>
+    </Metadonnees>
+    <Contenu>
+      <ouverture_seance ID_ACTEUR="PA1" code_grammaire="OUV_SEAN_1_1" ordre_absolu_seance="1" valeur_ptsODJ="0">
+        <ORATEURS/>
+        <texte>Présidence de M. Paul Exemple</texte>
+        <paragraphe ID_ACTEUR="PA1" code_grammaire="OUV_SEAN_2_1" ordre_absolu_seance="2" roleDebat="president" valeur_ptsODJ="0">
+          <ORATEURS><ORATEUR><NOM>M. le président</NOM><ID>PA1</ID><QUALITE/></ORATEUR></ORATEURS>
+          <texte>La séance est ouverte.</texte>
+        </paragraphe>
+        <!-- Didascalie sans orateur : ignorée. -->
+        <paragraphe code_grammaire="OUV_SEAN_2_2" ordre_absolu_seance="3" valeur_ptsODJ="0">
+          <ORATEURS/>
+          <texte><italique>(La séance est ouverte à seize heures.)</italique></texte>
+        </paragraphe>
+      </ouverture_seance>
+      <Point nivPoint="1" valeur="(n[[os]]&#160;2044, 2061)" valeur_ptsODJ="1" ordre_absolu_seance="5">
+        <ORATEURS/>
+        <texte>Projet de loi relatif aux jardins partagés</texte>
+        <Point nivPoint="2" valeur="" valeur_ptsODJ="1" ordre_absolu_seance="7">
+          <ORATEURS/>
+          <texte>Discussion générale (suite)</texte>
+          <inter_extraction id_acteur="PA2" nom_orateur="Mme Alice Exemple" QUALITE="ministre de l’agriculture">
+            <!-- La qualité vient du bloc : le paragraphe n'en a pas. Pas de bibard : le numéro
+                 du texte est hérité du Point de niveau 1. -->
+            <paragraphe ID_ACTEUR="PA2" code_grammaire="PRESENTATION_2_1" ordre_absolu_seance="8" valeur_ptsODJ="1">
+              <ORATEURS><ORATEUR><NOM>Mme Alice Exemple</NOM><ID>PA2</ID><QUALITE/></ORATEUR></ORATEURS>
+              <texte>Les jardins partagés sont <italique>(Applaudissements.)</italique> un bien commun.<br/>Je vous remercie.</texte>
+            </paragraphe>
+            <!-- Interruption rangée dans le bloc de la ministre : elle ne doit pas hériter de sa qualité. -->
+            <paragraphe ID_ACTEUR="PA3" code_grammaire="INTERRUPTION_1_10" ordre_absolu_seance="9" valeur_ptsODJ="1">
+              <ORATEURS><ORATEUR><NOM>M.&#160;Bruno Témoin</NOM><ID>PA3</ID><QUALITE/></ORATEUR></ORATEURS>
+              <texte>Très bien !</texte>
+            </paragraphe>
+          </inter_extraction>
+        </Point>
+        <Point nivPoint="2" valeur="" valeur_ptsODJ="1" ordre_absolu_seance="10">
+          <ORATEURS/>
+          <texte>Discussion des articles</texte>
+          <!-- Deux numéros dans le bibard : le premier est le texte discuté. -->
+          <paragraphe ID_ACTEUR="PA4" art="3" adt="12" bibard=" (n[[os]]&#160;611, 3749)" code_grammaire="DEBAT_1_10" ordre_absolu_seance="11" valeur_ptsODJ="1">
+            <ORATEURS><ORATEUR><NOM>Mme Claire Fictive</NOM><ID>PA4</ID><QUALITE>rapporteure de la commission</QUALITE></ORATEUR></ORATEURS>
+            <texte>Avis favorable.</texte>
+          </paragraphe>
+        </Point>
+      </Point>
+      <Point nivPoint="1" valeur="" valeur_ptsODJ="2" ordre_absolu_seance="20">
+        <ORATEURS/>
+        <texte>Questions au Gouvernement</texte>
+        <paragraphe ID_ACTEUR="PA3" bibard="" code_grammaire="QAG_1_1" ordre_absolu_seance="21" valeur_ptsODJ="2">
+          <ORATEURS><ORATEUR><NOM>M. Bruno Témoin</NOM><ID>PA3</ID><QUALITE/></ORATEUR></ORATEURS>
+          <texte>Ma question porte sur les jardins.</texte>
+        </paragraphe>
+      </Point>
+    </Contenu>
+  </CompteRendu>
+  <!-- Variante réelle de l'échantillon : métadonnées en minuscules. -->
+  <CompteRendu>
+    <Metadonnees>
+      <dateSeance>20130612150000000</dateSeance>
+      <legislature>14</legislature>
+    </Metadonnees>
+    <Contenu>
+      <paragraphe ID_ACTEUR="PA1" code_grammaire="OUV_SEAN_2_1" ordre_absolu_seance="1" roleDebat="president" valeur_ptsODJ="0">
+        <ORATEURS><ORATEUR><NOM>Mme la présidente</NOM><ID>PA1</ID><QUALITE/></ORATEUR></ORATEURS>
+        <texte>La séance est ouverte.</texte>
+      </paragraphe>
+    </Contenu>
+  </CompteRendu>
+</syceronBrut>

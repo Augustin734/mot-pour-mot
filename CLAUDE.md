@@ -52,6 +52,7 @@ Vérifié sur l'échantillon officiel `Assemblee-nationale/opendata_snippets` (X
 - **La liaison séance ↔ loi passe par le numéro du texte** (`bibard` → table `texte` → `dossier`), pas par Tricoteuses.
 - Le groupe d'un orateur à une date se retrouve dans le jeu « acteurs et organes » (mandats datés) : il est stocké dans `appartenance`.
 - La fréquence de mise à jour des séances n'est pas documentée (export daté de plusieurs jours) ; Tricoteuses sert pour la fraîcheur.
+- Vu en écrivant le parseur (1er nov. 2026) : les paragraphes d'un orateur sont regroupés dans un `inter_extraction` qui porte sa qualité ; une interruption est un paragraphe à part, rangé dans le bloc de l'orateur interrompu ; plus de la moitié des paragraphes n'ont pas de `bibard` et héritent le numéro du texte de leur `Point` parent.
 
 Le schéma cible est dans `docs/cadrage/05-dictionnaire-de-donnees.md`. Les noms y sont provisoires et doivent être fixés au jalon 1.
 
@@ -71,9 +72,9 @@ docker-compose.yml
 
 - Cadrage terminé et relu (19 documents dans `docs/cadrage/`). Wireframes mobiles validés (11 écrans, décrits dans `10-wireframes.md`). Les maquettes ordinateur sont obsolètes.
 - **Prochaine étape : jalon 1, modèle de données.**
-  - Schéma PostgreSQL et migrations (outil de migration à proposer, par ex. Alembic) pour les tables V1 du dictionnaire : `dossier`, `etape`, `texte`, `seance`, `point_odj`, `intervention`, `groupe`, `depute`, `appartenance`, `scrutin`, `vote`, plus les tables IA et d'exploitation.
-  - `docker-compose.yml` avec PostgreSQL, et l'API et le front en squelette.
-  - Premier script de collecte sur l'échantillon Syceron.
+  - Schéma PostgreSQL et migrations Alembic : fait (`db/modeles.py`, migration `0001`, tests dans `tests/db/`, CI GitHub Actions).
+  - `docker-compose.yml` avec PostgreSQL, et l'API (`/api/v1/statut`) et le front (Next.js 16, TypeScript) en squelette : fait.
+  - Premier script de collecte sur l'échantillon Syceron : fait (`pipeline/syceron.py`, `pipeline/chargement.py`, `python -m pipeline.collecte_echantillon`). Sur les 132 séances : 56 764 interventions, 83,5 % avec un numéro de texte.
 - Ensuite : jalon 2 (collecte complète + découpage + liaison), puis jalon 3 (API + recherche). Le détail est dans la section Jalons de `00-cahier-des-charges.md` et dans `15-backlog-priorise.md`.
 - Questions encore ouvertes : nom de domaine, taille du modèle (1,7B ou 4B), machine dédiée ou non.
 
@@ -83,3 +84,15 @@ docker-compose.yml
 - Expliquer brièvement les choix techniques non évidents : l'auteur doit pouvoir les défendre en entretien.
 - Si une demande contredit le cadrage, le signaler et demander avant de changer une décision.
 - Mettre à jour `docs/cadrage/` (et ce fichier) quand une décision change.
+
+## Workflow Git (décidé le 1er nov. 2026)
+
+```
+feature/xxx ──PR──▶ develop ──PR (fin de jalon)──▶ main
+```
+
+- Les branches de travail partent de `develop` et sont préfixées : `feature/`, `fix/`, `docs/`.
+- **Toute modification passe par une PR** : push direct, force-push et suppression interdits sur `main` et `develop` (rulesets GitHub).
+- **Claude ouvre les PR mais ne les merge jamais** : l'auteur relit et merge lui-même. Aucune approbation n'est exigée par GitHub, car les PR sont ouvertes avec le compte de l'auteur, qui ne peut pas approuver les siennes.
+- Merge en *squash* vers `develop` (un commit par fonctionnalité), en *merge commit* vers `main`.
+- `develop` → `main` à chaque fin de jalon. Quand la CI existera, les tests devront passer avant tout merge.
