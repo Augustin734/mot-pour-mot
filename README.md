@@ -26,10 +26,11 @@ Qwen3 fine-tuné en local (QLoRA) · Docker Compose
 
     git clone https://github.com/Augustin734/mot-pour-mot.git
     cd mot-pour-mot
-    cp .env.example .env          # puis changer le mot de passe
+    cp .env.example .env          # puis changer les deux mots de passe
     docker compose up -d --build  # base, API, front
     uv sync                       # dépendances Python (https://docs.astral.sh/uv/)
     uv run alembic upgrade head   # création du schéma (le pipeline seul écrit en base)
+    uv run python -m db.utilisateur_api   # utilisateur de l'API, en lecture seule
     uv run pytest                 # tests
     uv run python -m pipeline.collecte_echantillon   # charge l'échantillon officiel (132 séances)
     python -m pipeline.init       # premier chargement de la législature (à venir)
