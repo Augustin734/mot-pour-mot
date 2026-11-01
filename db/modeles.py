@@ -237,6 +237,9 @@ class Intervention(Horodatage, Base):
     # un numéro mal formé. La liaison (numero_texte + legislature de la séance) est
     # calculée par le pipeline, et les interventions non rattachées sont journalisées.
     numero_texte: Mapped[str | None] = mapped_column(index=True)
+    # Dossier de l'intervention, calculé par pipeline.liaison : celui de son texte, sinon
+    # celui de son point de l'ordre du jour (ex. budget sans numéro, rattaché par le titre).
+    dossier_id: Mapped[str | None] = mapped_column(ForeignKey("dossier.id"), index=True)
     article: Mapped[str | None]
     amendement: Mapped[str | None]
     # Identifiant brut de l'orateur (PA…), y compris pour un ministre absent de depute.

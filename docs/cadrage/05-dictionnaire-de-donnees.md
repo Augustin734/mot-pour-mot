@@ -86,13 +86,14 @@ En V1, seuls les dossiers législatifs (les lois) sont chargés : les numéros d
 | ordre | int | Comptes rendus | Rang dans la séance |
 | type\_debat | text | Comptes rendus | Discussion générale, articles, questions au gouvernement… (titre du Point de niveau 2, sans « (suite) ») |
 | code\_grammaire | text, nullable | Comptes rendus | Type brut de prise de parole (ex. `INTERRUPTION_1_10`), pour distinguer discours et interruptions |
-| numero\_texte | text, nullable | Comptes rendus | Texte discuté (attribut bibard nettoyé) ; clé de la liaison avec la loi |
+| numero\_texte | text, nullable | Comptes rendus | Texte discuté (attribut bibard nettoyé, propagé à tout le point de l'ordre du jour) ; clé de la liaison avec la loi |
+| dossier\_id | text, nullable | Calculé | Dossier de l'intervention : celui de son texte, sinon celui de son point de l'ordre du jour (`pipeline/liaison.py`) |
 | article, amendement | text, nullable | Comptes rendus | Article et amendement discutés, quand le compte rendu les indique |
 | acteur\_id | text, nullable | Comptes rendus | Identifiant brut de l'orateur (`ID_ACTEUR`, PA…), conservé même pour un ministre absent de la table depute |
-| depute\_id | text, nullable | Comptes rendus | Vide pour un ministre ou le président |
+| depute\_id | text, nullable | Calculé | Député qui parle, s'il en est un (aussi pour un député qui préside ou qui est ministre) ; vide pour un ministre non député |
 | orateur\_libelle | text | Comptes rendus | Nom affiché |
 | qualite | enum | Comptes rendus | Député, ministre, rapporteur, président, autre |
-| groupe\_id | text, nullable | Calculé | Groupe à la date de l'intervention |
+| groupe\_id | text, nullable | Calculé | Groupe à la date de l'intervention, seulement pour un député ou un rapporteur : un ministre parle au nom du gouvernement et un président de séance au nom de la présidence (charte de neutralité) |
 | texte | text | Comptes rendus | Propos intégral |
 | nb\_mots | int | Calculé | Pour le temps de parole |
 | recherche | tsvector | Calculé | Index plein texte, configuration française |
