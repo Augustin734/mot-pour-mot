@@ -1,0 +1,85 @@
+# CLAUDE.md — Mot pour mot
+
+Contexte du projet pour Claude Code. À lire avant toute tâche. Le cadrage complet est dans `docs/cadrage/` : en cas de doute, ces documents font foi, et ce fichier les résume.
+
+## Le projet en bref
+
+Appli web open source qui montre, loi par loi, ce que chaque groupe politique de l'Assemblée nationale en pense, avec des citations vérifiées mot pour mot, et qui permet de chercher « qui a dit quoi, quand » dans les débats.
+
+- **Public** : citoyens curieux, militants, étudiants (personas : `docs/cadrage/01-personas.md`).
+- **Contexte** : projet perso d'un data analyst (en alternance), aussi utilisé comme projet à présenter en entretien. Le code, les choix et la doc doivent donc être propres et explicables.
+- **Langue** : tout en français (doc, commentaires, messages de commit, interface). Les noms dans le code (tables, variables, fonctions) sont en français sans accents, en snake_case : `intervention`, `numero_texte`.
+
+## Décisions prises (ne pas remettre en cause sans demander)
+
+| Sujet | Décision |
+|---|---|
+| Nom | « Mot pour mot », dépôt `mot-pour-mot` (1er nov. 2026) |
+| Architecture | Appli avec serveur, tout tourne sur le PC Windows de l'auteur (ADR-001, ADR-005) |
+| Base | PostgreSQL, plein texte en configuration française, puis pgvector en V1.1 (ADR-002) |
+| Schéma | SQLAlchemy 2.0 + migrations Alembic, modèles partagés entre pipeline et API ; `texte` identifié par (legislature, numero) ; `cree_le` / `maj_le` sur les tables open data (1er nov. 2026) |
+| API | FastAPI, lecture seule, préfixe `/api/v1` (ADR-003, spec : `08-specification-de-l-api.md`) |
+| Front | React + Next.js, mobile d'abord (ADR-010) |
+| Pipeline | Python, run de nuit lancé par le Planificateur de tâches Windows ; c'est le seul composant qui écrit en base |
+| IA | Qwen3 1,7B ou 4B, fine-tuné en QLoRA (Unsloth sous WSL2) sur une RTX 3060 12 Go, servi par Ollama ou llama.cpp, hors Docker (ADR-004) |
+| Déploiement | Docker Compose pour la base, l'API et le front (ADR-009) ; Cloudflare Tunnel pour ouvrir aux amis |
+| Licence du code | AGPL-3.0 |
+| Données | L'open data AN fait foi (Licence Ouverte 2.0). Tricoteuses complète (ODbL : une base dérivée publiée reste sous ODbL). Datan sert au contrôle. |
+| Ordre des groupes | Toujours celui de l'hémicycle, de gauche à droite |
+| Couleurs | Couleurs traditionnelles des partis pour les groupes ; le reste de l'interface en noir sur fond cassé |
+| Commissions | Les comptes rendus de commission (HTML/PDF seulement) sont reportés en V1.1 ; la V1 ne couvre que la séance publique |
+
+## Principes non négociables
+
+1. **Aucune citation sans vérification** : un extrait n'est publié que s'il existe mot pour mot (après normalisation des espaces et de la ponctuation) dans l'intervention liée (ADR-008).
+2. **Neutralité** : l'appli ne juge jamais qui a raison et traite tous les groupes de la même façon (`11-charte-de-neutralite.md`).
+3. **Les sorties IA sont versionnées** et jamais écrasées (ADR-007).
+4. **Les identifiants AN sont conservés** comme clés (PA… pour un acteur, PO… pour un organe), ce qui rend la collecte idempotente.
+5. **Rien n'est supprimé** : les corrections de l'open data mettent les lignes à jour.
+
+## Données : ce qui a été vérifié (29 oct. 2026)
+
+Vérifié sur l'échantillon officiel `Assemblee-nationale/opendata_snippets` (XML « Syceron » des comptes rendus de séance) :
+
+- Chaque séance est découpée en points et en paragraphes. Chaque paragraphe porte :
+  - `ID_ACTEUR` (ex. `PA1874`), l'orateur ;
+  - `ordre_absolu_seance`, son rang dans la séance ;
+  - `code_grammaire` et `code_parole`, le type de prise de parole ou de débat ;
+  - `valeur_ptsODJ`, le point de l'ordre du jour ;
+  - **`bibard`**, le numéro du texte discuté, au format « (n° 3851) » à nettoyer ;
+  - `art` et `adt`, l'article et l'amendement discutés.
+- Les métadonnées contiennent `DateSeance` et `Legislature`, et les résultats de vote (`ResultatVote`) sont inclus.
+- **La liaison séance ↔ loi passe par le numéro du texte** (`bibard` → table `texte` → `dossier`), pas par Tricoteuses.
+- Le groupe d'un orateur à une date se retrouve dans le jeu « acteurs et organes » (mandats datés) : il est stocké dans `appartenance`.
+- La fréquence de mise à jour des séances n'est pas documentée (export daté de plusieurs jours) ; Tricoteuses sert pour la fraîcheur.
+
+Le schéma cible est dans `docs/cadrage/05-dictionnaire-de-donnees.md`. Les noms y sont provisoires et doivent être fixés au jalon 1.
+
+## Structure du dépôt (cible)
+
+```
+pipeline/  collecte, découpage, liaison, run de nuit
+ml/        dataset, entraînement, évaluation, prompts (ml/prompts/t1_position_groupe.v1.md…)
+api/       FastAPI, schémas, tests
+web/       front Next.js
+db/        schéma et migrations
+docs/      dossier de cadrage, ADR, méthode
+docker-compose.yml
+```
+
+## Où on en est
+
+- Cadrage terminé et relu (19 documents dans `docs/cadrage/`). Wireframes mobiles validés (11 écrans, décrits dans `10-wireframes.md`). Les maquettes ordinateur sont obsolètes.
+- **Prochaine étape : jalon 1, modèle de données.**
+  - Schéma PostgreSQL et migrations (outil de migration à proposer, par ex. Alembic) pour les tables V1 du dictionnaire : `dossier`, `etape`, `texte`, `seance`, `point_odj`, `intervention`, `groupe`, `depute`, `appartenance`, `scrutin`, `vote`, plus les tables IA et d'exploitation.
+  - `docker-compose.yml` avec PostgreSQL, et l'API et le front en squelette.
+  - Premier script de collecte sur l'échantillon Syceron.
+- Ensuite : jalon 2 (collecte complète + découpage + liaison), puis jalon 3 (API + recherche). Le détail est dans la section Jalons de `00-cahier-des-charges.md` et dans `15-backlog-priorise.md`.
+- Questions encore ouvertes : nom de domaine, taille du modèle (1,7B ou 4B), machine dédiée ou non.
+
+## Façon de travailler attendue
+
+- Avancer par petites étapes vérifiables, avec des tests (pytest) pour les parseurs, l'API et le schéma.
+- Expliquer brièvement les choix techniques non évidents : l'auteur doit pouvoir les défendre en entretien.
+- Si une demande contredit le cadrage, le signaler et demander avant de changer une décision.
+- Mettre à jour `docs/cadrage/` (et ce fichier) quand une décision change.
