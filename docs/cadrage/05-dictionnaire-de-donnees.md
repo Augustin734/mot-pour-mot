@@ -23,8 +23,8 @@ Les champs des tables V1, avec leur type PostgreSQL et leur source. Les noms son
 | titre\_officiel | text | Open data AN | Titre complet |
 | titre\_court | text | Calculé ou IA | Titre en langage clair pour les cartes |
 | alias | text\[\] | Saisie, IA | Noms médiatiques (ex. nom du ministre) pour la recherche |
-| type | enum | Open data AN | Projet ou proposition de loi |
-| statut | enum | Calculé | En cours, adopté, rejeté, retiré |
+| type | enum | Open data AN | Projet ou proposition de loi, d'après le premier texte déposé (PRJL… ou PION…) |
+| statut | enum | Calculé | En cours, adopté (promulgué), rejeté, retiré (retrait de l'initiative) ; le rejet n'est pas encore déduit, car un rejet en première lecture ne clôt pas la navette |
 | date\_depot | date | Open data AN | Date de dépôt |
 | date\_derniere\_activite | timestamptz | Calculé | Dernière séance, scrutin ou étape |
 | score\_importance | numeric | Calculé | Tri de l'écran Actu |
@@ -38,7 +38,7 @@ Les champs des tables V1, avec leur type PostgreSQL et leur source. Les noms son
 | id | text, clé | Open data AN | Identifiant de l'acte législatif |
 | dossier\_id | text | Open data AN | Dossier concerné |
 | type | enum | Open data AN | Dépôt, commission, séance, CMP, lecture définitive, promulgation |
-| chambre | enum | Open data AN | AN ou Sénat |
+| chambre | enum, nullable | Open data AN | AN ou Sénat ; vide pour la CMP et la promulgation |
 | date | date | Open data AN | Date de l'étape |
 
 ## seance
@@ -70,9 +70,11 @@ Les champs des tables V1, avec leur type PostgreSQL et leur source. Les noms son
 | legislature | int, clé (1/2) | Open data AN | L'AN renumérote ses textes à chaque législature |
 | numero | text, clé (2/2) | Open data AN | Numéro du texte (ex. 3851), forme nettoyée de l'attribut bibard |
 | dossier\_id | text | Open data AN | Dossier législatif auquel appartient le texte |
-| type | enum | Open data AN | Texte déposé, texte de commission, texte adopté |
+| type | enum | Open data AN | Texte déposé ou texte de commission (le numéro d'un rapport est aussi celui du texte de la commission) ; les textes adoptés ont une numérotation à part (TA) et ne sont pas dans cette table |
 
 La clé est le couple (legislature, numero) : le « n° 3851 » de la 14e législature et celui de la 16e sont deux textes différents (décidé le 1er novembre 2026). Une intervention retrouve son texte avec `numero_texte` et la législature de sa séance. Ce lien n'est pas une clé étrangère stricte : une séance peut être chargée avant son texte, ou porter un numéro mal formé, et l'intervention est alors journalisée comme non rattachée au lieu de faire échouer la collecte.
+
+En V1, seuls les dossiers législatifs (les lois) sont chargés : les numéros des propositions de résolution et des rapports de mission de contrôle (environ 900 documents de la 17e) ne sont pas dans `texte`.
 
 ## intervention
 
