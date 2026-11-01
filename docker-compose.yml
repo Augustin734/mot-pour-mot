@@ -1,6 +1,6 @@
-# Services de Mot pour mot (ADR-009).
-# Jalon 1 : la base seule ; l'API et le front arrivent ensuite.
-# Le modèle IA tourne hors Docker pour accéder au GPU (ADR-004).
+# Services de Mot pour mot (ADR-009) : base, API et front.
+# Le pipeline et le modèle IA tournent hors Docker (GPU, Planificateur de tâches : ADR-004).
+# Tous les ports sont liés à 127.0.0.1 : rien n'est ouvert sur le réseau local.
 
 services:
   base:
@@ -22,6 +22,30 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-motpourmot}:${POSTGRES_PASSWORD}@base:5432/${POSTGRES_DB:-motpourmot}
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:8000"
+    depends_on:
+      base:
+        condition: service_healthy
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    environment:
+      # Le front appelle l'API côté serveur, par le réseau interne de Docker.
+      API_URL: http://api:8000
+    ports:
+      - "127.0.0.1:${WEB_PORT:-3000}:3000"
+    depends_on:
+      - api
 
 volumes:
   donnees_base:
