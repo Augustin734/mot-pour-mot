@@ -5,7 +5,8 @@ Une API REST en lecture seule, préfixée `/api/v1`, qui sert tous les écrans d
 ## Conventions
 
 - **Format** : JSON, dates ISO 8601, identifiants AN conservés.
-- **Pagination** : `limit` (20 par défaut, 100 maximum) et `cursor` ; la réponse contient `next_cursor`.
+- **Pagination** : `limit` (20 par défaut, 100 maximum) et `cursor` ; la réponse contient `resultats` et `next_cursor` (vide sur la dernière page). Le curseur est opaque : il encode les valeurs de tri du dernier résultat (pagination *keyset*), ce qui garde des pages stables quand le run de nuit ajoute des lignes.
+- **Recherche** : `q` suit la syntaxe d'un moteur de recherche (`"expression exacte"`, `-mot` pour exclure, `or`), en configuration française (pluriels et accents ignorés). Avec `q`, les résultats sont triés par pertinence ; le texte surligné a son HTML échappé et entoure les mots trouvés de `<mark>…</mark>`.
 - **Erreurs** : `{"error": {"code": "not_found", "message": "…"}}` avec le code HTTP correspondant.
 - **Lecture seule** : uniquement des GET ; aucune authentification en V1.
 - **Cache** : en-têtes de cache d'une heure, invalidés après le run de nuit.

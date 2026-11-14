@@ -4,15 +4,18 @@ Spécification : docs/cadrage/08-specification-de-l-api.md
 """
 
 from datetime import datetime
+from http import HTTPStatus
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request
+from fastapi import APIRouter, Depends, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from api import lois
 from api.base import session
 from db.modeles import RunPipeline, Seance
 
@@ -26,7 +29,16 @@ app = FastAPI(
 
 # --- Erreurs au format de la spécification : {"error": {"code": …, "message": …}} ---
 
-CODES_ERREUR = {400: "requete_invalide", 404: "not_found", 422: "parametre_invalide", 500: "erreur_interne"}
+CODES_ERREUR = {
+    400: "requete_invalide",
+    404: "not_found",
+    405: "methode_non_autorisee",
+    422: "parametre_invalide",
+    500: "erreur_interne",
+}
+# Messages des erreurs levées par Starlette lui-même (route inconnue, méthode refusée),
+# qui n'ont que l'intitulé HTTP anglais par défaut.
+MESSAGES_PAR_DEFAUT = {404: "Ressource introuvable", 405: "Méthode non autorisée (API en lecture seule)"}
 
 
 def erreur(statut: int, message: str) -> JSONResponse:
@@ -34,14 +46,14 @@ def erreur(statut: int, message: str) -> JSONResponse:
     return JSONResponse(status_code=statut, content={"error": {"code": code, "message": message}})
 
 
-@app.exception_handler(HTTPException)
-async def gerer_http(_: Request, exc: HTTPException) -> JSONResponse:
-    return erreur(exc.status_code, str(exc.detail))
-
-
-@app.exception_handler(404)
-async def gerer_route_inconnue(_: Request, __: Exception) -> JSONResponse:
-    return erreur(404, "Ressource introuvable")
+# Enregistré sur l'exception de Starlette, dont hérite celle de FastAPI : couvre aussi bien
+# les routes inconnues que les HTTPException levées par nos routes (ex. « Loi introuvable »).
+@app.exception_handler(StarletteHTTPException)
+async def gerer_http(_: Request, exc: StarletteHTTPException) -> JSONResponse:
+    message = str(exc.detail)
+    if message == HTTPStatus(exc.status_code).phrase:
+        message = MESSAGES_PAR_DEFAUT.get(exc.status_code, message)
+    return erreur(exc.status_code, message)
 
 
 @app.exception_handler(RequestValidationError)
@@ -76,4 +88,5 @@ def lire_statut(db: Annotated[Session, Depends(session)]) -> Statut:
     )
 
 
+v1.include_router(lois.routeur)
 app.include_router(v1)
