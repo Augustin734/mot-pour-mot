@@ -1,28 +1,10 @@
 """Tests de l'API : route /statut, format des erreurs, lecture seule."""
 
-from collections.abc import Iterator
-
-import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import Connection, insert
-from sqlalchemy.orm import Session
 
-from api.base import session
 from api.main import app
 from db.modeles import Legislature, RunPipeline, Seance
-
-
-@pytest.fixture
-def client(connexion: Connection) -> Iterator[TestClient]:
-    """Client dont les requêtes lisent la transaction du test (annulée à la fin)."""
-
-    def session_de_test() -> Iterator[Session]:
-        with Session(bind=connexion, join_transaction_mode="create_savepoint") as s:
-            yield s
-
-    app.dependency_overrides[session] = session_de_test
-    yield TestClient(app)
-    app.dependency_overrides.clear()
 
 
 def test_statut_base_vide(client: TestClient) -> None:
@@ -59,4 +41,6 @@ def test_api_en_lecture_seule(client: TestClient) -> None:
     """Aucune route n'accepte autre chose que GET (spécification de l'API)."""
     methodes = {m for route in app.routes for m in getattr(route, "methods", set())}
     assert methodes <= {"GET", "HEAD"}
-    assert client.post("/api/v1/statut").status_code == 405
+    reponse = client.post("/api/v1/statut")
+    assert reponse.status_code == 405
+    assert reponse.json()["error"]["code"] == "methode_non_autorisee"
